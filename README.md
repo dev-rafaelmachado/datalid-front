@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📱 Detector de Validade - Mobile First
 
-## Getting Started
+Aplicação web mobile-first para detecção automática de datas de validade em produtos usando inteligência artificial.
 
-First, run the development server:
+## 🚀 Tecnologias
+
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS v4**
+- **Lucide React** (ícones)
+
+## ⚙️ Configuração
+
+### 1. Instalar dependências
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configurar variáveis de ambiente
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Crie um arquivo `.env.local` na raiz do projeto (ou edite o existente):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
 
-## Learn More
+**Importante:** Certifique-se de que sua API backend está rodando na porta 8000.
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Executar o servidor de desenvolvimento
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Abra [http://localhost:3000](http://localhost:3000) no navegador para ver o resultado.
 
-## Deploy on Vercel
+## 📁 Estrutura do Projeto
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+├── app/
+│   ├── page.tsx          # Página principal
+│   ├── layout.tsx        # Layout root
+│   └── globals.css       # Estilos globais (Tailwind)
+├── components/
+│   ├── ImageUploader.tsx    # Componente de upload/câmera
+│   ├── ImagePreview.tsx     # Preview da imagem
+│   ├── LoadingSpinner.tsx   # Indicador de carregamento
+│   └── ResultDisplay.tsx    # Exibição de resultados com bounding boxes
+├── lib/
+│   ├── api.ts           # Funções de API e utilitários
+│   └── types.ts         # Tipos TypeScript
+└── .env.local           # Variáveis de ambiente (não commitado)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎯 Funcionalidades
+
+### ✨ Interface Mobile-First
+- Design responsivo otimizado para celular
+- Interface limpa e intuitiva
+- Botões grandes e fáceis de tocar
+- Suporte a dark mode
+
+### 📸 Captura de Imagem
+- **Tirar foto:** Usa a câmera do dispositivo
+- **Escolher da galeria:** Seleciona foto existente
+- **Preview:** Visualização antes de processar
+- **Compressão automática:** Redimensiona para max 1920px
+- **Validação:** JPEG, PNG, BMP (max 10MB)
+
+### 🔍 Processamento
+- Envia imagem para API via POST `/process`
+- Loading visual durante processamento
+- Tratamento de erros (400, 413, 500)
+
+### 📊 Exibição de Resultados
+- **Bounding boxes coloridos:**
+  - 🟢 Verde: confidence > 70%
+  - 🟡 Amarelo: confidence 50-70%
+  - 🔴 Vermelho: confidence < 50%
+- **Melhor data destacada** com badge de status
+- **Todas as datas encontradas** listadas
+- **Informações de detecção** com confidence
+- **Status de expiração** (dias até expirar)
+
+## 🔌 API Backend
+
+### Endpoint Principal
+
+```
+POST http://localhost:8000/process
+Content-Type: multipart/form-data
+```
+
+### Parâmetros
+
+```typescript
+const formData = new FormData();
+formData.append('file', imageFile);
+formData.append('return_visualization', 'false');
+formData.append('return_crops', 'false');
+formData.append('return_full_ocr', 'false');
+```
+
+### Resposta Esperada
+
+```typescript
+{
+  status: 'success' | 'partial' | 'failed',
+  message: string,
+  detections: DetectionResult[],
+  dates: ParsedDate[],
+  best_date: ParsedDate | null,
+  processed_at: string
+}
+```
+
+## 🎨 Personalização
+
+### Alterar URL da API
+
+Edite `.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=https://sua-api.com
+```
+
+### Estilos
+
+Os estilos usam Tailwind CSS v4. Edite:
+- `app/globals.css` - Variáveis CSS e temas
+- Componentes individuais - Classes Tailwind inline
+
+## 📦 Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+pnpm dev
+
+# Build de produção
+pnpm build
+
+# Executar build
+pnpm start
+
+# Lint
+pnpm lint
+```
+
+## 🐛 Resolução de Problemas
+
+### API não responde
+- Verifique se o backend está rodando em `localhost:8000`
+- Confirme o `NEXT_PUBLIC_API_URL` no `.env.local`
+
+### Erro de CORS
+- Configure CORS no backend para aceitar `http://localhost:3000`
+
+### Imagem não processa
+- Verifique o formato (JPEG, PNG, BMP)
+- Confirme que o tamanho é < 10MB
+- Teste com uma imagem menor primeiro
+
+## 📄 Licença
+
+Projeto desenvolvido para TCC - Detecção de Datas de Validade
