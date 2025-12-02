@@ -3,8 +3,8 @@
 import { DetectionResult, ProcessImageResponse } from '@/lib/types';
 import { AlertCircle, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import CropDisplay from './CropDisplay';
 import CropComparison from './CropComparison';
+import CropDisplay from './CropDisplay';
 
 interface ResultDisplayProps {
   result: ProcessImageResponse;
