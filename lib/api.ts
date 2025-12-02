@@ -30,7 +30,7 @@ export async function processImage(file: File): Promise<ProcessImageResponse> {
       const errorText = await response.text();
       
       if (response.status === 400) {
-        throw new Error('Arquivo inválido. Envie uma imagem válida (JPEG, PNG, BMP).');
+        throw new Error('Arquivo inválido. Envie uma imagem válida.');
       } else if (response.status === 413) {
         throw new Error('Imagem muito grande. O tamanho máximo é 10MB.');
       } else if (response.status === 500) {
@@ -75,6 +75,7 @@ export function compressImage(file: File, maxWidth: number = 1920): Promise<File
         
         ctx.drawImage(img, 0, 0, width, height);
         
+        // Sempre converte para JPEG para garantir compatibilidade
         canvas.toBlob(
           (blob) => {
             if (!blob) {
@@ -82,14 +83,17 @@ export function compressImage(file: File, maxWidth: number = 1920): Promise<File
               return;
             }
             
-            const compressedFile = new File([blob], file.name, {
-              type: file.type,
+            // Gera nome de arquivo com extensão .jpg
+            const fileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
+            
+            const compressedFile = new File([blob], fileName, {
+              type: 'image/jpeg',
               lastModified: Date.now(),
             });
             
             resolve(compressedFile);
           },
-          file.type,
+          'image/jpeg',
           0.9
         );
       };
@@ -104,12 +108,11 @@ export function compressImage(file: File, maxWidth: number = 1920): Promise<File
 }
 
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
-  const validTypes = ['image/jpeg', 'image/png', 'image/bmp'];
-  
-  if (!validTypes.includes(file.type)) {
+  // Aceita qualquer tipo de imagem
+  if (!file.type.startsWith('image/')) {
     return {
       valid: false,
-      error: 'Formato inválido. Use JPEG, PNG ou BMP.',
+      error: 'Por favor, selecione um arquivo de imagem.',
     };
   }
   

@@ -24,7 +24,7 @@ export default function ImageUploader({ onImageSelect, disabled }: ImageUploader
       <input
         ref={cameraInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/bmp"
+        accept="image/*"
         capture="environment"
         onChange={handleFileChange}
         className="hidden"
@@ -33,7 +33,7 @@ export default function ImageUploader({ onImageSelect, disabled }: ImageUploader
       <input
         ref={galleryInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/bmp"
+        accept="image/*"
         onChange={handleFileChange}
         className="hidden"
         disabled={disabled}
