@@ -20,6 +20,8 @@ export function isTimeoutError(error: unknown): boolean {
 }
 
 export function getUserFriendlyErrorMessage(error: unknown): string {
+  console.log('[getUserFriendlyErrorMessage] Processando erro:', error);
+  
   if (isTimeoutError(error)) {
     return 'Tempo limite excedido. A imagem pode ser muito grande ou o servidor está lento. Tente com uma imagem menor.';
   }
@@ -29,6 +31,12 @@ export function getUserFriendlyErrorMessage(error: unknown): string {
   }
   
   if (error instanceof Error) {
+    // Log específico para erros do iOS
+    if (typeof navigator !== 'undefined') {
+      console.log('[getUserFriendlyErrorMessage] User Agent:', navigator.userAgent);
+      console.log('[getUserFriendlyErrorMessage] É iOS?:', /iPad|iPhone|iPod/.test(navigator.userAgent));
+    }
+    
     return error.message;
   }
   

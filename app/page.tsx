@@ -1,5 +1,6 @@
 'use client';
 
+import DebugInfo from '@/components/DebugInfo';
 import ImagePreview from '@/components/ImagePreview';
 import ImageUploader from '@/components/ImageUploader';
 import LoadingSpinner from '@/components/LoadingSpinner';
@@ -17,44 +18,76 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
 
   const handleImageSelect = async (file: File) => {
+    console.log('[handleImageSelect] Arquivo selecionado:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: file.lastModified,
+      timestamp: new Date().toISOString()
+    });
+
     setError(null);
     
     // Validate file
+    console.log('[handleImageSelect] Validando arquivo...');
     const validation = validateImageFile(file);
     if (!validation.valid) {
+      console.error('[handleImageSelect] Validação falhou:', validation.error);
       setError(validation.error || 'Arquivo inválido');
       return;
     }
+    console.log('[handleImageSelect] Arquivo válido!');
 
     // Compress image
     try {
+      console.log('[handleImageSelect] Iniciando compressão...');
       const compressedFile = await compressImage(file);
+      console.log('[handleImageSelect] Compressão concluída:', {
+        name: compressedFile.name,
+        type: compressedFile.type,
+        size: compressedFile.size
+      });
+      
       setSelectedFile(compressedFile);
       
       // Create preview URL
+      console.log('[handleImageSelect] Criando URL de preview...');
       const url = URL.createObjectURL(compressedFile);
+      console.log('[handleImageSelect] URL criada:', url);
+      
       setImageUrl(url);
       setResult(null);
+      
+      console.log('[handleImageSelect] ✓ Processo completo!');
     } catch (err) {
+      console.error('[handleImageSelect] ✗ Erro capturado:', err);
+      console.error('[handleImageSelect] Stack trace:', (err as Error)?.stack);
       setError('Erro ao processar a imagem. Tente novamente.');
-      console.error(err);
     }
   };
 
   const handleProcess = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      console.warn('[handleProcess] Nenhum arquivo selecionado');
+      return;
+    }
 
+    console.log('[handleProcess] Iniciando processamento da imagem');
     setIsProcessing(true);
     setError(null);
     setResult(null);
 
     try {
+      console.log('[handleProcess] Chamando processImage...');
       const response = await processImage(selectedFile);
+      console.log('[handleProcess] ✓ Processamento concluído com sucesso!');
       setResult(response);
     } catch (err) {
+      console.error('[handleProcess] ✗ Erro no processamento:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setIsProcessing(false);
+      console.log('[handleProcess] Estado de processamento finalizado');
     }
   };
 
@@ -169,6 +202,9 @@ export default function Home() {
       <footer className="mt-12 py-6 text-center text-sm text-gray-600 dark:text-gray-400">
         <p>Detector de Validade - Identifique datas de validade em produtos</p>
       </footer>
+
+      {/* Debug Info - Aparece no canto inferior direito */}
+      <DebugInfo />
     </div>
   );
 }
