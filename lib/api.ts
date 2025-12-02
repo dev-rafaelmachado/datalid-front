@@ -256,9 +256,19 @@ export function compressImage(file: File, maxWidth: number = 1920): Promise<File
           fileName: file.name,
           fileType: file.type,
           fileSize: file.size,
+          isIOS: isIOS(),
           error
         });
-        reject(new Error('Erro ao carregar imagem. Tente com outra imagem.'));
+        
+        // Se for iOS e falhou ao carregar, pode ser HEIC/HEIF
+        // Retornamos o arquivo original e deixamos o backend lidar com isso
+        if (isIOS() && (!file.type || file.type === '' || file.type.includes('heic') || file.type.includes('heif'))) {
+          console.warn('[compressImage] iOS com HEIC/HEIF detectado, retornando arquivo original');
+          resolve(file);
+          return;
+        }
+        
+        reject(new Error('Erro ao carregar imagem. Tente selecionar uma imagem da galeria.'));
       };
       
       const dataUrl = e.target?.result as string;
@@ -273,8 +283,18 @@ export function compressImage(file: File, maxWidth: number = 1920): Promise<File
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
+        isIOS: isIOS(),
         error: reader.error
       });
+      
+      // Se for iOS e falhou ao ler, pode ser formato não suportado
+      // Retornamos o arquivo original como fallback
+      if (isIOS()) {
+        console.warn('[compressImage] iOS detectado, retornando arquivo original como fallback');
+        resolve(file);
+        return;
+      }
+      
       reject(new Error('Erro ao ler arquivo. Tente novamente.'));
     };
     
